@@ -200,7 +200,7 @@ public class MainActivity extends Activity {
             imagePreview.setImageBitmap(decode(current.imagePath));
             LinearLayout.LayoutParams ip=new LinearLayout.LayoutParams(-1,dp(165)); ip.topMargin=dp(10); photo.addView(imagePreview,ip);
             TextView remove=button("הסרת התמונה",Color.rgb(255,239,240),Color.rgb(179,55,68));
-            remove.setOnClickListener(v->{deleteFile(current.imagePath);current.imagePath=null;save(false);showEditor();});
+            remove.setOnClickListener(v->{removePrivateFile(current.imagePath);current.imagePath=null;save(false);showEditor();});
             LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-2,dp(38)); rp.topMargin=dp(7); photo.addView(remove,rp);
         }
         LinearLayout.LayoutParams pp=new LinearLayout.LayoutParams(-1,-2); pp.topMargin=dp(9); form.addView(photo,pp);
@@ -264,7 +264,7 @@ public class MainActivity extends Activity {
 
     private void stopRecording() {
         try{if(recorder!=null)recorder.stop();}
-        catch(Exception e){deleteFile(recordingPath);current.audioPath=null;toast("ההקלטה לא נשמרה. נסי שוב.");}
+        catch(Exception e){removePrivateFile(recordingPath);current.audioPath=null;toast("ההקלטה לא נשמרה. נסי שוב.");}
         finally{
             releaseRecorder(); recording=false; save(false); showEditor();
             toast(current.audioPath==null?"ההקלטה נכשלה":"ההקלטה נשמרה בפתק");
@@ -367,7 +367,7 @@ public class MainActivity extends Activity {
                     if(in==null)throw new Exception("לא ניתן לפתוח את התמונה");
                     byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1)out.write(b,0,n);
                 }
-                deleteFile(current.imagePath);current.imagePath=file.getAbsolutePath();save(false);showEditor();toast("התמונה נוספה לפתק");
+                removePrivateFile(current.imagePath);current.imagePath=file.getAbsolutePath();save(false);showEditor();toast("התמונה נוספה לפתק");
             }catch(Exception e){toast("לא ניתן לצרף תמונה: "+message(e));}
         }
     }
@@ -387,7 +387,7 @@ public class MainActivity extends Activity {
         new AlertDialog.Builder(this).setTitle("למחוק את הפתק?")
             .setMessage("הפתק והקבצים המצורפים יימחקו מהמכשיר.")
             .setNegativeButton("ביטול",null).setPositiveButton("מחיקה",(d,w)->{
-                db.delete(current.id);deleteFile(current.imagePath);deleteFile(current.audioPath);current=null;showList();
+                db.delete(current.id);removePrivateFile(current.imagePath);removePrivateFile(current.audioPath);current=null;showList();
             }).show();
     }
 
@@ -404,7 +404,7 @@ public class MainActivity extends Activity {
     private BitmapFactory.Options imageOptions(){BitmapFactory.Options o=new BitmapFactory.Options();o.inSampleSize=2;return o;}
     private android.graphics.Bitmap decode(String path){try{return BitmapFactory.decodeFile(path,imageOptions());}catch(Exception e){return null;}}
     private boolean exists(String p){return p!=null&&new File(p).exists();}
-    private void deleteFile(String p){if(p!=null)try{new File(p).delete();}catch(Exception ignored){}}
+    private void removePrivateFile(String p){if(p!=null)try{new File(p).delete();}catch(Exception ignored){}}
     private String date(long t){return DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT,new Locale("he","IL")).format(new Date(t));}
     private String message(Exception e){return e.getMessage()==null?e.getClass().getSimpleName():e.getMessage();}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_LONG).show();}
