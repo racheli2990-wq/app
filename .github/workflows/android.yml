@@ -6,11 +6,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
-    name: Build debug APK
+    name: Build and publish APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -26,10 +26,18 @@ jobs:
           gradle-version: '9.6.1'
       - name: Build APK
         run: gradle --no-daemon assembleDebug
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: offline-notes-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
+      - name: Publish APK as a public GitHub Release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-build-${{ github.run_number }}
+          name: פתקים מקומיים – APK
+          body: APK מקומפל. גרסת Debug להתקנה ידנית במכשיר Android.
+          prerelease: true
+          files: app/build/outputs/apk/debug/app-debug.apk
